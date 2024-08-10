@@ -76,7 +76,7 @@
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC  https://docs.databricks.com/en/_extras/notebooks/source/dlt-wikipedia-sql.html
+-- MAGIC Sample  https://docs.databricks.com/en/_extras/notebooks/source/dlt-wikipedia-sql.html
 
 -- COMMAND ----------
 

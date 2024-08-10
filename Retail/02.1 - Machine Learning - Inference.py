@@ -43,6 +43,8 @@
 
 # COMMAND ----------
 
+## databaseName='f11ldb'
+databaseForDLT=databaseName
 spark.sql("use catalog main")
 spark.sql("use database "+databaseForDLT)
 
@@ -75,7 +77,7 @@ predictions.createOrReplaceTempView("v_churn_prediction")
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC select * from churn_prediction
+# MAGIC select * from churn_prediction limit 10;
 
 # COMMAND ----------
 

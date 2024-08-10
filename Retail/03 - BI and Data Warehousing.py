@@ -116,7 +116,7 @@
 # MAGIC FROM churn_prediction GROUP BY churn_prediction;
 # MAGIC ```
 # MAGIC
-# MAGIC ### For 4 and 5 switch to the schema in the hive metastore where the DLT tables are created 
+# MAGIC ### For 4 and 5 switch to the schema where the DLT tables are created 
 # MAGIC
 # MAGIC **4. Customer Tenure - Historical**
 # MAGIC ```

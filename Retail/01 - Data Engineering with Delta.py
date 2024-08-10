@@ -65,7 +65,7 @@ display(dbutils.fs.ls(rawDataVolume+"/orders"))
 
 # COMMAND ----------
 
-display(spark.sql("SELECT * FROM json.`"+rawDataVolume+"/users`"))
+display(spark.sql("SELECT * FROM json.`"+rawDataVolume+"/users` limit 10"))
 
 # COMMAND ----------
 
@@ -121,7 +121,7 @@ ingest_folder(rawDataVolume + '/users', 'json',  'churn_users_bronze').awaitTerm
 # DBTITLE 1,Our user_bronze Delta table is now ready for efficient querying
 # MAGIC %sql 
 # MAGIC -- Note the "_rescued_data" column. If we receive wrong data not matching existing schema, it will be stored here
-# MAGIC select * from churn_users_bronze;
+# MAGIC select * from churn_users_bronze limit 10;
 
 # COMMAND ----------
 
@@ -150,7 +150,8 @@ from pyspark.sql.functions import sha1, col, initcap, to_timestamp
         .withColumn("lastname", initcap(col("lastname")))
         .withColumn("age_group", col("age_group").cast('int'))
         .withColumn("gender", col("gender").cast('int'))
-        .drop(col("churn"))
+        .withColumn("churn", col("churn").cast('int'))
+#        .drop(col("churn"))
         .drop(col("_rescued_data"))
       .writeStream
         .option("checkpointLocation", f"{deltaTablesDirectory}/checkpoint/users")
@@ -159,7 +160,7 @@ from pyspark.sql.functions import sha1, col, initcap, to_timestamp
 
 # COMMAND ----------
 
-# MAGIC %sql select * from churn_users;
+# MAGIC %sql select * from churn_users limit 10;
 
 # COMMAND ----------
 
@@ -178,7 +179,7 @@ from pyspark.sql.functions import sha1, col, initcap, to_timestamp
 
 # COMMAND ----------
 
-# MAGIC %sql select * from churn_orders;
+# MAGIC %sql select * from churn_orders limit 10;
 
 # COMMAND ----------
 
@@ -235,7 +236,7 @@ spark.sql(
   """
 )
 
-display(spark.table("churn_features"))
+display(spark.table("churn_features").limit(10))
 
 # COMMAND ----------
 
@@ -261,7 +262,7 @@ display(spark.table("churn_features"))
 # DBTITLE 1,We can leverage the history to travel back in time, restore or clone a table, enable CDC, etc.
 # MAGIC %sql 
 # MAGIC  -- the following also works with AS OF TIMESTAMP "yyyy-MM-dd HH:mm:ss"
-# MAGIC select * from churn_users version as of 1 ;
+# MAGIC select * from churn_users version as of 1 limit 10;
 
 # COMMAND ----------
 

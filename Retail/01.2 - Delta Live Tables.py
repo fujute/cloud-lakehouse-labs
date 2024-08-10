@@ -104,7 +104,7 @@
 # MAGIC
 # MAGIC ### Examine the source.
 # MAGIC A DLT pipeline can be implemented either in SQL or in Python.
-# MAGIC * [DLT pipeline definition in SQL]($./01.2 - Delta Live Tables - SQL)
+# MAGIC * [DLT pipeline definition in SQL - UC]($./01.2 - Delta Live Tables - SQL-UC) 
 # MAGIC * [DLT pipeline definition in Python]($./01.2 - Delta Live Tables - Python)
 # MAGIC
 # MAGIC ### Define the pipeline
@@ -133,6 +133,7 @@ print("Specify the following storage location for the DLT pipeline tables:\n" + 
 # COMMAND ----------
 
 # DBTITLE 1,Count the rows in the churn_features table
+databaseForDLT=databaseName
 sqlStatement = "select count(*) from main." + databaseForDLT + ".churn_features"
 print("Executing:\n" + sqlStatement)
 display(spark.sql(sqlStatement))
