@@ -133,6 +133,7 @@ print("Specify the following storage location for the DLT pipeline tables:\n" + 
 # COMMAND ----------
 
 # DBTITLE 1,Count the rows in the churn_features table
+## databaseName='f11ldb'
 databaseForDLT=databaseName
 sqlStatement = "select count(*) from main." + databaseForDLT + ".churn_features"
 print("Executing:\n" + sqlStatement)
