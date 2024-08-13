@@ -1,6 +1,6 @@
 -- Databricks notebook source
 -- MAGIC %md
--- MAGIC # Volumes Quickstart (SQL)
+-- MAGIC # Volumes Quickstart (SQL & Python)
 -- MAGIC
 -- MAGIC This notebook provides an example workflow for creating your first Volume in Unity Catalog:
 -- MAGIC
@@ -10,7 +10,8 @@
 -- MAGIC - Manage the Volume's access permissions.
 -- MAGIC
 -- MAGIC ## Version
--- MAGIC - 0.2.2b
+-- MAGIC - 0.2f
+-- MAGIC - fujuOrg
 -- MAGIC
 -- MAGIC ## Requirements
 -- MAGIC
@@ -25,7 +26,7 @@
 -- MAGIC
 -- MAGIC in this sample we will use  the following deails for catalog and schema
 -- MAGIC - catalog_name = training_catalog
--- MAGIC - db_name = f11ldb_isxj_da_asp (PLEASE CHANGE THE SCHEMA NAME to YOUR)
+-- MAGIC - db_name = fukiat_julnual_isxj_da_asp (PLEASE CHANGE THE SCHEMA NAME to YOUR)
 -- MAGIC
 -- MAGIC ## References and  more information
 -- MAGIC
@@ -33,169 +34,14 @@
 
 -- COMMAND ----------
 
--- MAGIC %python
--- MAGIC catalog_name="training_catalog" # please chage to your catalog 
--- MAGIC db_name="f11ldb_isxj_da_asp" # please change to your schame / db 
--- MAGIC table_name="univ_grd_tab"
--- MAGIC
--- MAGIC spark.conf.set("cnf.catalog_name", catalog_name)
--- MAGIC spark.conf.set("cnf.db_name", db_name)
--- MAGIC spark.conf.set("cnf.table_name", table_name)
--- MAGIC
--- MAGIC table_full_path = catalog_name + "." + db_name + "." + table_name;
--- MAGIC display(table_full_path)
-
--- COMMAND ----------
-
---- Show all catalogs in the metastore
-SHOW CATALOGS like "training*"
-
--- COMMAND ----------
-
--- Set the current catalog
-USE CATALOG ${cnf.catalog_name};
-
--- COMMAND ----------
-
 -- MAGIC %md
--- MAGIC ### Choose a schema
--- MAGIC Schemas are the second layer of the Unity Catalog namespace. They logically organize Tables, Views, Volumes and other objects.
+-- MAGIC ![FUJUOrG](https://www.fuju.org/wp-content/uploads/2017/08/20180806_102329787_1920x1080-840x200.jpg "FUJUOrG")
 -- MAGIC
--- MAGIC The following commands can help:
--- MAGIC
--- MAGIC - Show all schemas in a catalog: <a href=https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-show-schemas.htmlsch>SHOW SCHEMAS</a>.
--- MAGIC - Create a new schema: <a href=https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-create-schema.html>CREATE SCHEMA</a>.
--- MAGIC - Describe a schema: <a href=https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-describe-schema.html>DESCRIBE SCHEMA</a>.
--- MAGIC - Select a schema: <a href=https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-use-schema.html>USE SCHEMA</a>.
--- MAGIC - Show all grants on a schema: <a href=https://docs.databricks.com/sql/language-manual/security-show-grant.html>SHOW GRANTS</a>.
--- MAGIC - Grant permissions on a schema: <a href=https://docs.databricks.com/sql/language-manual/security-grant.html>GRANT ON SCHEMA</a>.
-
--- COMMAND ----------
-
--- Show schemas in the selected catalog
-SHOW SCHEMAS;
-
--- COMMAND ----------
-
---- Create a new schema in the quick_start catalog 
--- NOTE -- PLEASE CHANGE THE SCHEMA NAME TO YOUR 
-CREATE SCHEMA IF NOT EXISTS ${cnf.db_name}
-COMMENT "A new Unity Catalog schema called ${cnf.db_name}";
-
--- COMMAND ----------
-
--- Describe a schema
-DESCRIBE SCHEMA EXTENDED ${cnf.db_name};
-
--- COMMAND ----------
-
-USE SCHEMA ${cnf.db_name};
-
--- COMMAND ----------
-
---- Grant CREATE VOLUME on a Catalog or Schema.
---- When granted at Catalog level, users will be able to create Volumes on any schema in this Catalog.
-GRANT CREATE VOLUME
-ON CATALOG ${cnf.catalog_name}
-TO `account users`;
-
--- COMMAND ----------
-
---- Create an external volume under the newly created directory
-CREATE VOLUME IF NOT EXISTS ${cnf.catalog_name}.${cnf.db_name}.quickstart_volume
--- CREATE VOLUME IF NOT EXISTS training_catalog.quickstart_schema.quickstart_volume
-COMMENT 'This is my example managed volume'
-
--- COMMAND ----------
-
--- MAGIC %md 
--- MAGIC ###Browse the Volume 
--- MAGIC
--- MAGIC Use the path below - works with Spark APIs, shell, dbutils, and local file system utilities:
--- MAGIC
--- MAGIC `/Volumes/<catalog_name>/<schema_name>/<volume_name>/<path>`
--- MAGIC
--- MAGIC With Spark APIs you can also use:
--- MAGIC
--- MAGIC `dbfs:/Volumes/<catalog_name>/<schema_name>/<volume>/<path>`
-
--- COMMAND ----------
-
--- MAGIC %python
--- MAGIC # dbutils.fs.ls("/Volumes/training_catalog/quickstart_schema/quickstart_volume")
--- MAGIC dbutils.fs.ls("/Volumes/"+catalog_name+"/"+db_name+"/quickstart_volume")
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC Copy a file from `dbfs:/databricks-datasets/` into your Volume.
-
--- COMMAND ----------
-
--- MAGIC %python
--- MAGIC dbutils.fs.cp("dbfs:/databricks-datasets/wine-quality/winequality-red.csv", "/Volumes/"+catalog_name+"/"+db_name+"/quickstart_volume")
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC List again and discover the file you just copied.
-
--- COMMAND ----------
-
--- MAGIC %python
--- MAGIC dbutils.fs.ls("/Volumes/"+catalog_name+"/"+db_name+"/quickstart_volume")
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ### List Volumes
-
--- COMMAND ----------
-
--- View all Volumes in a schema
-SHOW VOLUMES IN ${cnf.db_name};
-
--- COMMAND ----------
-
--- MAGIC %md 
--- MAGIC ### Alter a Volume
--- MAGIC - Change volume name
--- MAGIC - Transfer ownership
--- MAGIC - Set a comment
--- MAGIC
-
--- COMMAND ----------
-
-ALTER VOLUME ${cnf.catalog_name}.${cnf.db_name}.quickstart_volume SET OWNER TO `account users`
-
--- COMMAND ----------
-
-COMMENT ON VOLUME ${cnf.catalog_name}.${cnf.db_name}.quickstart_volume IS 'This is a shared Volume';
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ### Drop a Volume
--- MAGIC
--- MAGIC Use the `DROP VOLUME` command to delete a volume.
--- MAGIC
--- MAGIC If a *managed volume* is dropped, the files stored in this volume are also deleted from your cloud tenant within 30 days.
--- MAGIC
--- MAGIC If an *external volume* is dropped, the metadata about the volume is removed from the catalog but the underlying files are not deleted. 
-
--- COMMAND ----------
-
---- Drop the managed Volume. Uncomment the following line to try it out. 
---- DROP VOLUME IF EXISTS quickstart_catalog.quickstart_schema.quickstart_volume
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC # 18_Apr Labs
+-- MAGIC #Senario 1, task 1
 -- MAGIC
 -- MAGIC For this lab, participants will have two options to choose from: SQL or Python. Regardless of the chosen option, the following tasks must be completed:
 -- MAGIC
--- MAGIC 1. **Data Acquisition**: Download the TIS-620 encoded dataset from the provided URL: https://data.go.th/en/dataset/univ_grd_11_01
+-- MAGIC 1. **Data Acquisition**: Download the UTF-8 encoded dataset from the provided URL: https://data.go.th/en/dataset/univ_grd_11_01
 -- MAGIC
 -- MAGIC 2. **Data Upload**: Upload the downloaded dataset to the previously created volume using the web interface.
 -- MAGIC
@@ -215,9 +61,10 @@ COMMENT ON VOLUME ${cnf.catalog_name}.${cnf.db_name}.quickstart_volume IS 'This 
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC catalog_name="training_catalog" # please chage to your catalog 
--- MAGIC db_name="f11ldb_isxj_da_asp" # please change to your schame / db 
+-- MAGIC catalog_name="f11l_catalog" # please chage to your catalog 
+-- MAGIC db_name="db_isxj_da_asp" # please change to your schame / db 
 -- MAGIC table_name="univ_grd_tab"
+-- MAGIC volume_name="quickstart_volume"
 -- MAGIC
 -- MAGIC spark.conf.set("cnf.catalog_name", catalog_name)
 -- MAGIC spark.conf.set("cnf.db_name", db_name)
@@ -225,10 +72,6 @@ COMMENT ON VOLUME ${cnf.catalog_name}.${cnf.db_name}.quickstart_volume IS 'This 
 -- MAGIC
 -- MAGIC table_full_path = catalog_name + "." + db_name + "." + table_name;
 -- MAGIC display(table_full_path)
-
--- COMMAND ----------
-
-SELECT * FROM system.information_schema.catalogs where created_by=current_user()
 
 -- COMMAND ----------
 
@@ -257,7 +100,7 @@ select current_catalog(),current_database()
 
 -- MAGIC %md
 -- MAGIC ## 1. **Data Acquisition**: 
--- MAGIC Download the TIS-620 encoded dataset from the provided URL: https://data.go.th/en/dataset/univ_grd_11_01
+-- MAGIC Download the UTF-8 encoded dataset from the provided URL: https://data.mhesi.go.th/dataset/9b6be911-8192-472d-91cc-f50676f0ffb7/resource/e2a37423-f025-4580-96ca-3fc5d70c3af5/download/univ_grd_11_05_2564.csv 
 -- MAGIC
 
 -- COMMAND ----------
@@ -265,16 +108,21 @@ select current_catalog(),current_database()
 -- MAGIC %md
 -- MAGIC ## 2. **Data Upload**: 
 -- MAGIC Upload the downloaded dataset( univ_grd_11_01.csv) to the previously created volume using the web interface.
--- MAGIC And beside of using UI , you can download the file from internet direclty as reference from 
--- MAGIC https://docs.databricks.com/en/files/download-internet-files.html#language-bash 
 -- MAGIC
 
 -- COMMAND ----------
 
--- MAGIC %sh 
--- MAGIC SOURCE_FILE="https://data.go.th/dataset/09c22384-1f02-48f3-9ded-481cacc32281/resource/1a6725cc-4b72-4b98-b96c-b2ff96b19c39/download/univ_grd_11_01.csv"
--- MAGIC curl $SOURCE_FILE --output /Volumes/training_catalog/f11ldb_isxj_da_asp/quickstart_volume/univ_grd_11_01-source.csv
+-- MAGIC %python
+-- MAGIC download_url = "https://data.mhesi.go.th/dataset/9b6be911-8192-472d-91cc-f50676f0ffb7/resource/e2a37423-f025-4580-96ca-3fc5d70c3af5/download/univ_grd_11_05_2564.csv"
+-- MAGIC file_name = "univ_grd_11_05_2564.csv"
+-- MAGIC path_volume = "/Volumes/" + catalog_name + "/" + db_name + "/" + volume_name
+-- MAGIC print(path_volume) # Show the complete path
 -- MAGIC
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dbutils.fs.cp(f"{download_url}", f"{path_volume}/{file_name}")
 
 -- COMMAND ----------
 
@@ -307,7 +155,7 @@ select current_catalog(),current_database()
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC dbutils.fs.ls("dbfs:/Volumes/training_catalog/f11ldb_isxj_da_asp/quickstart_volume/")
+-- MAGIC dbutils.fs.ls("dbfs:/Volumes/f11l_catalog/ktb_isxj_da_asp/quickstart_volume/")
 -- MAGIC
 
 -- COMMAND ----------
@@ -318,16 +166,16 @@ select current_catalog(),current_database()
 
 -- COMMAND ----------
 
-SELECT * FROM csv.`dbfs:/Volumes/training_catalog/f11ldb_isxj_da_asp/quickstart_volume/univ_grd_11_01.csv` limit 10;
+-- SELECT * FROM csv.`dbfs:/Volumes/training_catalog/fukiat_julnual_isxj_da_asp/quickstart_volume/univ_grd_11_01.csv` limit 10;
 
 -- COMMAND ----------
 
 CREATE OR REPLACE TEMPORARY VIEW temp_view
 USING csv
 OPTIONS (
-  path "dbfs:/Volumes/training_catalog/f11ldb_isxj_da_asp/quickstart_volume/univ_grd_11_01.csv",
+  path "dbfs:/Volumes/f11l_catalog/ktb_isxj_da_asp/quickstart_volume/univ_grd_11_05_2564.csv",
   header "true",
-  encoding "TIS-620"
+  encoding "UTF-8"
 );
 
 SELECT * FROM temp_view limit 10;
@@ -336,7 +184,7 @@ SELECT * FROM temp_view limit 10;
 
 SELECT UNIV_NAME_TH, SUM(AMOUNT)
 FROM temp_view
-WHERE AYEAR = "2562"
+WHERE AYEAR = "2564"
 GROUP BY UNIV_NAME_TH
 ORDER BY SUM(AMOUNT) DESC
 LIMIT 10
@@ -359,7 +207,7 @@ select current_catalog(),current_database()
 -- COMMAND ----------
 
 -- Create the table using the data from another table, if it doesn't exist
-CREATE TABLE IF NOT EXISTS training_catalog.f11ldb_isxj_da_asp.${cnf.table_name} AS SELECT * FROM temp_view;
+CREATE TABLE IF NOT EXISTS f11l_catalog.db_isxj_da_asp.${cnf.table_name} AS SELECT * FROM temp_view;
 
 -- COMMAND ----------
 
@@ -376,8 +224,8 @@ DESCRIBE TABLE EXTENDED  ${cnf.catalog_name}.${cnf.db_name}.${cnf.table_name}
 
 -- MAGIC %python
 -- MAGIC ## CHANGE S3 location to your location that you got from row #23 from previous step
--- MAGIC files = dbutils.fs.ls("s3://databricks-e2demofieldengwest/b169b504-4c54-49f2-bc3a-adf4b128f36d/tables/798257bf-06d8-46a9-ae69-c6154d0c7810")
--- MAGIC display(files)
+-- MAGIC ## files = dbutils.fs.ls("s3://databricks-e2demofieldengwest/b169b504-4c54-49f2-bc3a-adf4b128f36d/tables/798257bf-06d8-46a9-ae69-c6154d0c7810")
+-- MAGIC ## display(files)
 
 -- COMMAND ----------
 
@@ -389,7 +237,7 @@ DESCRIBE TABLE EXTENDED  ${cnf.catalog_name}.${cnf.db_name}.${cnf.table_name}
 
 SELECT UNIV_NAME_TH, SUM(AMOUNT)
 FROM ${cnf.catalog_name}.${cnf.db_name}.${cnf.table_name}
-WHERE AYEAR = "2562"
+WHERE AYEAR = "2564"
 GROUP BY UNIV_NAME_TH
 ORDER BY SUM(AMOUNT) DESC
 LIMIT 10
@@ -406,8 +254,8 @@ LIMIT 10
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC catalog_name="training_catalog" # please chage to your catalog 
--- MAGIC db_name="f11ldb_isxj_da_asp" # please change to your schame / db 
+-- MAGIC catalog_name="f11l_catalog" # please chage to your catalog 
+-- MAGIC db_name="db_isxj_da_asp" # please change to your schame / db 
 -- MAGIC table_name="univ_grd_tab_02"
 -- MAGIC
 -- MAGIC spark.conf.set("cnf.catalog_name", catalog_name)
@@ -476,7 +324,7 @@ LIMIT 10
 -- MAGIC
 -- MAGIC # A text dataset is pointed to by path.
 -- MAGIC # The path can be either a single text file or a directory of text files
--- MAGIC path = "/Volumes/"+catalog_name+"/"+db_name+"/"+"quickstart_volume/univ_grd_11_01.csv"
+-- MAGIC path = "/Volumes/"+catalog_name+"/"+db_name+"/"+"quickstart_volume/univ_grd_11_05_2564.csv"
 -- MAGIC
 -- MAGIC df1 = spark.read.csv(path)
 -- MAGIC df1.limit(10).show()
@@ -492,13 +340,13 @@ LIMIT 10
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC ### Reading from TIS-620 Encoding
+-- MAGIC ### Reading from UTF-8 Encoding
 
 -- COMMAND ----------
 
 -- MAGIC %python
 -- MAGIC # Read a csv with delimiter and a header
--- MAGIC df3 = spark.read.option("delimiter", ",").option("header", True).option("encoding","TIS-620").csv(path)
+-- MAGIC df3 = spark.read.option("delimiter", ",").option("header", True).option("encoding","UTF-8").csv(path)
 -- MAGIC df3.limit(10).show()
 
 -- COMMAND ----------
@@ -553,7 +401,17 @@ LIMIT 10
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC #### gernerate python code SQL with Databricks assistant
+-- MAGIC #### Gernerate python code SQL with Databricks assistant
+
+-- COMMAND ----------
+
+-- SQL CODE 
+-- SELECT UNIV_NAME_TH, SUM(AMOUNT)
+-- FROM ${cnf.catalog_name}.${cnf.db_name}.${cnf.table_name}
+-- WHERE AYEAR = "2564"
+-- GROUP BY UNIV_NAME_TH
+-- ORDER BY SUM(AMOUNT) DESC
+-- LIMIT 10
 
 -- COMMAND ----------
 
@@ -561,7 +419,7 @@ LIMIT 10
 -- MAGIC from pyspark.sql import functions as F
 -- MAGIC
 -- MAGIC df5 = spark.table('${cnf.catalog_name}.${cnf.db_name}.${cnf.table_name}')
--- MAGIC result = df5.filter(df5.AYEAR == "2562") \
+-- MAGIC result = df5.filter(df5.AYEAR == "2564") \
 -- MAGIC     .groupBy("UNIV_NAME_TH") \
 -- MAGIC     .agg(F.sum("AMOUNT").alias("SUM_AMOUNT")) \
 -- MAGIC     .orderBy("SUM_AMOUNT", ascending=False) \
@@ -582,8 +440,8 @@ LIMIT 10
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC catalog_name="training_catalog"
--- MAGIC db_name="f11ldb_isxj_da_asp"
+-- MAGIC catalog_name="f11l_catalog"
+-- MAGIC db_name="db_isxj_da_asp"
 -- MAGIC table_name="univ_grd_tab_02"
 -- MAGIC view_name="univ_grd_view_2562"
 -- MAGIC
@@ -649,21 +507,3 @@ select * from ${cnf.view_name} ORDER BY AMOUNT DESC limit 10;
 -- MAGIC
 -- MAGIC # Display the DataFrame
 -- MAGIC display(conf_df)
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## Optional: System Table
-
--- COMMAND ----------
-
-SELECT * FROM system.information_schema.catalogs where created_by=current_user()
-
--- COMMAND ----------
-
-select current_user()
