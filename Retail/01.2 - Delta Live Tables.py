@@ -127,6 +127,39 @@ print("Specify the following storage location for the DLT pipeline tables:\n" + 
 
 # COMMAND ----------
 
+# DBTITLE 1,Preparing schema under UC main catalog
+spark.sql("CREATE SCHEMA IF NOT EXISTS main." + databaseForDLT)
+
+# COMMAND ----------
+
+# MAGIC %md 
+# MAGIC ## Create aon Run DLT Pipeline via UI
+# MAGIC ```
+# MAGIC {
+# MAGIC     "id": "9cc445a0-55df-48e6-813c-d4bd7c2b9417",
+# MAGIC     "pipeline_type": "WORKSPACE",
+# MAGIC     "development": true,
+# MAGIC     "continuous": false,
+# MAGIC     "channel": "CURRENT",
+# MAGIC     "photon": true,
+# MAGIC     "libraries": [
+# MAGIC         {
+# MAGIC             "notebook": {
+# MAGIC                 "path": "/Users/myuser0001@databricks.com/PTG/cloud-lakehouse-labs-130824/Retail/01.2 - Delta Live Tables - SQL-UC"
+# MAGIC             }
+# MAGIC         }
+# MAGIC     ],
+# MAGIC     "name": " churn_data_pipeline",
+# MAGIC     "serverless": true,
+# MAGIC     "catalog": "main",
+# MAGIC     "target": "myuser0001_databricks_com_retail_dlt",
+# MAGIC     "data_sampling": false
+# MAGIC }
+# MAGIC ```
+# MAGIC
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## Run the following after having set up and run the DLT job
 
@@ -134,7 +167,7 @@ print("Specify the following storage location for the DLT pipeline tables:\n" + 
 
 # DBTITLE 1,Count the rows in the churn_features table
 ## databaseName='f11ldb'
-databaseForDLT=databaseName
+## databaseForDLT=databaseName
 sqlStatement = "select count(*) from main." + databaseForDLT + ".churn_features"
 print("Executing:\n" + sqlStatement)
 display(spark.sql(sqlStatement))
