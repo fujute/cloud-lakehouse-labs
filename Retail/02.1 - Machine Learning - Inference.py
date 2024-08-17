@@ -44,7 +44,7 @@
 # COMMAND ----------
 
 ## databaseName='f11ldb'
-databaseForDLT=databaseName
+##databaseForDLT=databaseName
 spark.sql("use catalog main")
 spark.sql("use database "+databaseForDLT)
 

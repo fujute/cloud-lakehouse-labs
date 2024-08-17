@@ -87,7 +87,7 @@
 # COMMAND ----------
 
 ## databaseName='f11ldb'
-databaseForDLT=databaseName
+## databaseForDLT=databaseName
 spark.sql("use catalog main")
 spark.sql("use database "+databaseForDLT)
 
@@ -96,6 +96,12 @@ spark.sql("use database "+databaseForDLT)
 
 print("Database name: " + databaseName)
 print("User name: " + userName)
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC select current_catalog() 
+# MAGIC
 
 # COMMAND ----------
 
